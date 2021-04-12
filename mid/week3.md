@@ -85,4 +85,4 @@ ACK + timer + reactions
 - (+) parity bit(16/24 bit)  
 - 수신 CRC, 내가 만든 CRC 비교
 - FEC가 완벽하게 복원했는지 확인하는 용도  
-- 다항식 나누기 D = 나머지가 parity bit  
+- 미리 상호간에 약속된 다항식으로 나누어 나머지를 Parity bit
