@@ -29,7 +29,9 @@ React: error 상황에서 송신 측 동작
 - timer interval = 데이터 보냄 + ACK받을 때까지 갔다오는 시간 + margin  
 - time-out -> timer expiry  
 - peer partner의 inactivity 감지  
+
 <br>
+
 #### timer의 중요성
 - protocol 표준 문서 -> 타이머는 항상 있음 !
 - timer name/ interval/ start/ stop/ expiry  
