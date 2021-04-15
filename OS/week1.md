@@ -14,7 +14,7 @@
 
 - Resource allocator
   - 자원에 대한 관리자, 응용 프로그램이 문제를 해결하기 위해 자원 할당해줌
- - Control program
+- Control program
   - 응용프로그램 실행할 수 있게 해줌
   - 사용자 인터페이스 제공(사용자가 원하는 프로그램 쉽게 실행할 수 있도록)
   - 오류, 부적절한 실행 방지를 위해 제어
@@ -141,7 +141,7 @@
 <br>
 
 ## 1.3 Computer System Architecture
-- Singleprocessors
+- Singleprocessor
    - 범용의 명령어 집합을 실행할 수 있는 하나의 CPU
 - Multiprocessors (= Parallel systems, multi core system)
   - 두개 이상의 Processor
