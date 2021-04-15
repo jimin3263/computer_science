@@ -600,10 +600,203 @@
 
 <br>
 
-### Multiprogramming
+## Multiprogramming
 - 이후 모두 multiprogramming 이라고 가정
 - 운영체제가 프로그램을 실행시키는 방식에 관한 것
 - 프로그램 시작 -> 메모리에 적재된 것으로 시작
 - Uni-programming 에서 CPU를 idle 상태로 놔두는 것은 낭비 -> 낭비 줄이고자 함
 - Throughput/ Utilization / Degree of multiprogramming(동시에 실행되는 프로그램 증가)
 - 최대한 많은 수의 프로그램을 동시에 실행하는 게 좋음
+
+<br>
+
+## 3.1 Process Concept
+- job = process
+- 실행 중인 프로그램 = process
+- text
+  - 프로그램 명령 - 코드
+  - program counter를 포함한 CPU register
+- stack
+  - 프로그램 실행 도중 함수 관련
+  - parameter, 복귀 주소, 함수 지역 변수
+  - 함수 호출 될 때마다 push, 종료될 때 pop
+- data
+  - 전역 변수
+- heap
+  - 프로세스 실행 도중 동적 메모리 할당
+- stack, heap 사이 -> 프로세스
+  - 아직 사용되지 않은 빈 공간
+  - stack(함수 중첩), heap(동적 할당) -> 늘어날 수 있음 / 줄어들 수도
+  - 나머지 부분은 크기 변화 없음
+- program
+  - passive (executable file)
+- process
+  - 다음에 실행할 CPU명령을 지정하는 computer register/ 실행에 필요한 자원 집합 가짐 -> 능동적
+  - 실행 file의 형태 프로그램이 메모리에 적재되어야 process 가 됨
+- program은 하나지만 여러개의 process 존제
+  - text 동일/ data, stack, heap 내용 다름
+
+### Process State
+- Process State
+  - new: process가 만들어지고 있는 과정 -> 정식 process는 아님
+  - ready: CPU에 할당되기를 기다림 / CPU가 주어지면 즉시 실행가능
+  - running: 프로세스가 실행 중 
+  - waiting: process가 어떤 사건을 발생하기를 기다림 (사건: 입출력 완료)
+  - terminated: 프로세스 실행 종료 -> 소멸되지는 않은 상태
+- Diagram of process state
+  - new -> terminated 까지 상태 전이
+  - new -> ready (admitted): 정식으로 프로세스가 될 대상 선택
+  - ready -> running (scheduler dispatch): CPU 할당
+  - running -> ready (time interrupt): 실행중인 프로세스가 너무 장시간 독점
+  - running -> waiting: 입출력 요청
+  - waiting -> ready: 입출력 완료 interrupt (모든 입출력에서 발생)
+  - running -> terminated: 실행중인 프로세스가 종료 system call 호출
+
+### PCB - Process Control Block
+- 커널이 개별 프로세스를 관리하기 위한 자료구조
+- 한 프로세스에 해당하는 모든 정보가 담겨있음
+- PCB - 프로세스마다 하나/ 프로세스 생성, 소멸할 때 같이
+- linked list로 관리
+- Process state
+  - ready, running 등
+- Process ID
+  - process 구별
+  - 정수로 표기
+- program counter
+  - CPU 안에 있는 register 현재 실행 중인 명령 담음 (복사본)
+  - running 아닌 경우만 의미 있음
+  - 최근 실행 멈춘 곳에 주소 담김 -> 실행 재개 할때 이 field 저장 주소
+- CPU registers
+  - PC 제외 register
+  - 가장 최근에 실행을 멈춘 시점의 정보
+  - 재개하면 이 field의 값이 restore
+- CPU scheduling
+  - CPU 할당할 process 선택
+  - 우선순위, 스케줄링 큐
+- Memory-management information
+  - process가 할당받아서 사용하고 있는 Mainmemory 위치 정보
+- Accounting information
+  - process 자원 사용 기록
+  - CPU 사용 시간, 자원 한도
+- I/O status information
+  - process에 할당된 입출력 장치, open file
+- current
+  - 현재 실행중인 Process의 PCB 가리키는 포인터 
+ 
+*p0 -> p1 전환할 때, 전환하는 과정에서 p0의 상태를 p0의 PCB에 저장*  
+*p0 -> kernel -> p1 -> kernel -> p0*
+
+<br>
+
+## 3.2 Process Scheduling
+- multi programming: CPU 이용 극대화
+- Timesharing: 프로그램이 실행되는 동안에 사용자와 상호작용하도록 CPU 빈번하게 교체
+- Process scheduler: 실행가능한 여러개의 프로세스 중 하나의 프로세스를 선택함
+- scheduling queues: 스케줄러의 선택 대상이 되는 프로세스를 모아놓음
+  - Ready queue: 메모리에 있으면서 즉시 실행가능한 process (ready)
+  - Device queue: 장치마다 하나, 입출력 개시/ 완료 기다림 (waiting)
+  - Job queue: 시스템에 있는 모든 process 포함 -> 전체 process 목록 
+
+**-> process는 자신의 lifecycle동안에 이런저런 scheduling queue를 옮겨 다님**  
+
+### Schedulers
+- Short-term scheduler( = CPU scheduler)
+  - 다음 실행할 프로세스 선택, 이 프로세스한테 CPU 할당
+  - ready 중에서 고름
+  - ready queue
+  - 작은 규모에서 유일한 scheduler
+  - 매우 빈번
+- Long-term scheduler (= job scheduler)
+  - 어느 프로세스를 ready queue로 가져올건지
+  - new -> ready
+  - degree of multiprogramming(동시에 실행 중인 프로그램) 조절 -> 추가
+  - I/O bound / CPU bound 적절히
+- Medium-term scheduler
+  - swap 영역으로 내쫓음
+  - main memory의 빈공간 확보를 위해서
+  - prcess 수가 줄어들면 다시 main memory에서 가져옴 
+  - degree of multi programming 조절 -> 감소시키는 건 아님
+  - 종료하면서 자연스럽게 종료
+  - 시스템이 일시적으로 높을 때 동작
+  - waiting 상태인 애 쫓음
+- I/O bound process
+  - 입출력 위주로
+  - 짧은 CPU bursts
+- CPU bound process
+  - 계산 위주
+  - 긴 CPU bursts 
+*I/O bound process 너무 많음 -> ready queue 빔 -> CPU scheduler 가 할 일 없어짐*    
+*CPU bound process 너무 많음 -> 각종 입출력 장치의 IO queue 가 빔 -> 입출력 장치가 할 일 없어짐*
+
+### Context Switch
+- 이젠 프로세스 상태 저장, 다음 프로세스 복원
+- Context: 사용중인 CPU 레지스터가 프로세스의 main memory 상의 내용을 통칭
+- PCB에 기록됨
+- Context - switch : 다른 프로세스로 옮겨감
+- 시간 -> 그 자체로 시스템의 overhead
+- 하지 않을 수는 없는데 의미있는 작업은 아니여서 overhead -> 신속 짧게
+- 신속하게 할 수 있는 하드웨어 있음 -> 명령하나로 store, restore
+
+## 3.3 Operations on Process
+- kernel이 process에 제공하는 연산 (system call)
+- 생성: 새로운 프로세스 만듦
+  - 기존: parent
+  - 새로: child
+  - process tree 생성 -> 한 프로세스가 여러 프로세스 만들수도 / init(root) -> kernel 부팅 과정 직접 만듦 (복제해서 만드는게 아니라)
+  - pid로 식별
+  - 자원의 공유: 부모, 자식 모두/ 일부/ 전혀 공유하지 않을 수도 -> 물려주는 경우가 많음
+  - open 상태 -> 자식에게도 open file 물려줌
+  - 메모리 주소공간: 그대로 복제 -> 부모 프로세스와 내용 같음
+  - 자식 생성: fork() -> 이를 호출한 process의 주소 공간을 system call에서 지정한 실행 파일로 교체 (부모의 것과 다른 자신의 프로그램 실행):exec() -> exit(): 종료 (부모는 wait 중)
+  - fork(): system call 시작할때는 하나, 정상 복귀할 때 process가 두 개가 됨/ parent, child에게 return -> fork가 return 시점부터 자식 생성
+  - fork의 리턴값은 달라짐
+  - execlp: ls 라는 프로그램이 대체 / process는 유지 / 실행 코드만 바뀜
+- 종료
+  - exit() -> 하나의 정수 parameter = exit status -> 부모에게 전달 가능
+  - 운영체제에 의해 모든 자원 회수
+  - 정상 종료
+  - abort() -> 자식 프로세스를 강제종료하기 위해 부모가 사용
+  - 자원 사용량 지나치게 많을때/ 자식이 수행하는 작업 필요없음/ 부모 프로세스가 exit 먼저해서 자식 Process만 남은거 허용하지 않을때
+  - cascading termination : 부모 종료했는데 자식이 남아있을때 사용
+- 대기
+  - exit() 하면 terminated 상태 -> 완전 소멸된 상태아님
+  - 부모가 wait() 리턴하면 완전히 소멸
+  - wait: 자식 함수의 종료를 기다림
+  - pid = wait(&status);
+  - 자식 프로세스의 종료상태 전달도 할 수 있음
+  - 자식의 종료/ 부모의 기다림 시간 엇갈릴 수도
+  - 1) 자식 프로세스가 exit 했는데 부모 wait 하지 않음 -> 자식은 zombie
+  - 2) 부모 프로세스 먼저 종료 / 자식 프로세스는 아직 동작-> Orpha
+
+<br>
+
+## 3.4 Interprocess Communication (ITC)
+- independent: 한 프로세스가 다른 프로세스 실행에 영향 끼치지 않음
+- cooperating: 다른 프로세스 실행에 영향 주고 받음 
+  - 정보 공유, 작업 나눔, 모듈화된 시스템을 여러 프로세스, 한 사용자가 편리함 목적으로 여러 프로세스 사용
+  - 데이터 정보 교환 -> ITC 필요
+- Shared memory
+  - 일정한 메모리 영역 공유
+  - 각 프로세스 입장에서 자신의 메모리 일부로 간주 -> 읽거나 쓸때 문제 없음
+  - 별도의 송신 수신 함수 필요없음
+  - 운영체제가 아닌 사용자 기반 프로세스의 통제하에 이루어짐
+  - A 쓴 후 B가 읽음 -> 먼저 이루어진다는 보장은 없음
+  - 사용자 프로세스가 통신하기 위해 접근할 때 동기화에 필요함 
+- message passing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
