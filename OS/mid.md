@@ -783,11 +783,57 @@
   - A 쓴 후 B가 읽음 -> 먼저 이루어진다는 보장은 없음
   - 사용자 프로세스가 통신하기 위해 접근할 때 동기화에 필요함 
 - message passing
+  - process 간 통신, 동기화를 위한 IPC 메커니즘 중 하나
+  - message queue: 송신, 수신할 때 이용/ kernel 내 존재
+  - 커널이 send, receive 제공
+  - 메시지 크기 -> 고정 크기 or 가변 크기
 
+### Naming
+- Direct communication
+  - 통신을 원하는 각 프로세스가 송,수신자의 이름 명시해야함
+  - send(P,message): P에게 송신한다, receive(Q,message): Q로부터 수신한다
+  - 자동으로 연결, 매번 상대방 지정함
+  - 연결은 오직 두 Process 간
+  - 단방향, 양방향 가능
 
+- Indirect communication
+  - mail box이용 (= port)
+  - 특정한 아이디의 메일박스 공유해야함
+  - 공통의 mail box 간에만 Link 연결
+  - 하나의 mail box에 여러 process 접근 가능
+  - 한 쌍의 process 간의 여러개의 link 공유 가능
+  - mail box 생성/ mailbox로부터 송수신, 메일박스 제거
+  - send(A,message): A(송신하고자 하는 mailbox)
+  - receive(A,message): A(수신하고자 하는 mailbox)
+  - 3개의 프로세스 -> A공유 / p1 -> p2,p3 누가 실제로 수신함 ?
+  - 하나의 메일박스에 최대 두 프로세스 -> p1과 연관된 Process에 따라 수신자 결정
+  - 한 번에 한 프로세스만 receive 연산 -> p2, p3 중 먼저 receive 성공
+  - system이 선택할 수도 -> p1에게 통보하는 방식
 
+### Synchronization
+- Blocking (= synchronous)
+  - Blocking send: 보낸 메시지를 receiver가 수신할 때 까지 send block됨 -> 송신될 때까지 waiting 상태
+  - Blocking receive: 수신자가 receive 연산해서 받겠다고 했는데 도착하지 않은 경우 -> 도착할 때까지 수신자가 waiting 상태  
+  
+*-> rendezvous*
+- Non- blocking (= asynchronous)
+  - Non-blocking send: 수신자가 수신했는지 상관없이 할 일함
+  - Non-blocking receive: 메시지가 도착하지 않았을 때 null 메시지 받음 
 
-
+### Buffering
+- 송신 측에서 송신 시작 직 후, 수신 완료될 때까지 이동하는 메시지가 저장되어야 함
+- 송신 중인 메시지를 임시 저장
+- direct/ indirect -> queue 존재
+- 1. zero capacity
+  - 대기 하는 메시지 존재하지 않고 sender는 reciever가 수신할 때까지 기다림 -> blocking 방식
+  - reciever: sender가 보내면 즉시 받아야 함
+  - 버퍼링 필요없음
+- 2. Bounded capacity
+  - 버퍼링 공간 제한
+  - queue가 가득 차있음 -> queue가 비워지기를 기다림
+- 3. Unbounded capacity
+  - queue 길이 제약 없음
+  - 기다리는 일 없음
 
 
 
