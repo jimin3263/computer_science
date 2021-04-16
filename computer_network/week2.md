@@ -14,8 +14,6 @@
 - 위 아래 protocol끼리 상호작용
 - 상대방에게 똑같은 protocol이 있다 (대칭적) -> 상호작용
 
-![image](https://user-images.githubusercontent.com/50178026/114393580-2077e600-9bd5-11eb-8e5c-dc67667ad1f2.png)   
-
 
 ### Protocol Model - Service  
 - Client 에게 무언가를 해주는 것
@@ -25,14 +23,12 @@
   - service -> protocol 요청, protocol -> service 보고 할때 SP 형식으로 주고 받음  
   - 이름, 형식, 파라미터로 구성됨
   - 형식 (primitive 종류) : request(s -> p), confirm(request 응답), indication(p -> s), response(indication 응답)  
-![image](https://user-images.githubusercontent.com/50178026/114396835-fcb69f00-9bd8-11eb-8004-d1cdd9661b4d.png)  
 
 ### Protocol Model - Entity and SAP 
 - Entities (SAP에서 내려오는 걸 처리): service provider 내에서 서로 interacting하면서 실제 동작을 하는 존재  
 - Peer entity: 반대편에 대응됨
 - communication service 실현을 위해 서로 message 주고 받음
 - 하나의 SAP은 하나의 entity에 mapping, 여러개의 SAP에 하나의 entity는 가능
-![image](https://user-images.githubusercontent.com/50178026/114399509-f544c500-9bdb-11eb-8bb4-66c4d04162dc.png) 
 
 #### communication protocol  
 -> peer entity 들 간 상호 작용을 하는 규칙
@@ -41,7 +37,7 @@
  
 ### Protocol Model - Protocol Representation  
 Time sequence diagram: 세로축 - 시간흐름, 가로축 - 한쪽 entity -> peer entity 상호 작용  
-![image](https://user-images.githubusercontent.com/50178026/114400246-bbc08980-9bdc-11eb-9960-345336542fae.png)
+
 -> SAP을 통해서 CR 들어옴  
  
 ### Protocol Model - PDU
