@@ -2,7 +2,8 @@
 
 - Layer2 - 전송 수행, error control  
 - Layer1 - 물리적 전송  
-  - hop 1개일 때 수행    
+  - hop 1개일 때 수행   
+   
 *-> 다음 hop까지 전달*
 
 ### Layer3
