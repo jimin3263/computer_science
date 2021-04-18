@@ -5,12 +5,12 @@
 ## Routing algorithm
 - Router forwarding table
   - source -> destination 
-  - router에 어디로 가야한다라는 forwarding table이 있음  
+  - router에 어디로 가야한다는 forwarding table이 있음  
   - destination 쪽에서 부터 routing 정보가 올라와서 gateway는 routing 정보를 읽어서 router에게 보냄    
   - decentralized: router들 각각이 주체적으로 만들 수 있음  
 - Countol plane: routing 알고리즘을 통해 forwarding table 생성
 - Data plane: forwarding table을 이용해서 동작
-- Source router -> Destination router : 최적의 경로를 찾는 것
+- Routing algorithm의 목적: Source router -> Destination router : 최적의 경로를 찾는 것
 - graph theory를 기본적으로 활용
 - Routing Path
   - Least-cost path: cost의 합이 최소
@@ -18,14 +18,14 @@
 - Centralized routing algorithm (= Global): 모든 경우의 수 대해 해봄
   - 전체 네트워크에 대한 지식있어야 함
   - Link-state algorithm
-- Decentralized: router들이 자신의 상태에 맞게 최적의 routing path 결정
+- Decentralized : router들이 자신의 상태에 맞게 최적의 routing path 결정
   - 특정 노드가 모든 링크에 대한 정보를 완벽하게 가지지 않으며 주로 자신과 연결된 링크에 대한 정보만 가지고 단계적으로 동작함
   - Iterative, distributed manner
   - Distance-vector algorithm
 
-### Dynamic routing algorithms
-- Traffic load, topology 변화(어떤 router가 망가졌을때 돌아감)에 의해 자동으로 routing table 변함
-- Routing loop(보냈는데 다시 돌아옴), oscillation(옆에 a,b 있는데 a가 널널해서 보냈는데 b가 널널해져서 b로 보냄 a,b 핑퐁)
+### Dynamic routing
+- Traffic load(에 대해 크게 변하지 않음), topology 변화(어떤 router가 망가졌을 때 돌아감)에 의해 자동으로 routing table 변함
+- 문제점: Routing loop(보냈는데 다시 돌아옴), oscillation(옆에 a,b 있는데 a가 널널해서 보냈는데 b가 널널해져서 b로 보냄 a,b 핑퐁)
 
 ### Static routing
 - routing table이 시간에 따라 거의 변하지 않음
@@ -40,25 +40,27 @@
   - 비교적으로 간단하지만 flexibility가 적고 수고가 많이 듦
   - 붐비는 상황에 취약함
 
-
 ### Flooding
 - static -> dynamic 의 중간
-- 효과적인 방식, 네트워크 자원을 많이 먹음
+- 효과적인 방식이지만 네트워크 자원을 많이 먹음
 - 모든 neighbor에게 packet 뿌림
+- 하나의 port 사용하지 않음
 - destination은 multiple copy 형태로 수신
 - routing protocol, table 필요 없음
 - 재전송에 대한 제어 필요, traffic load 불필요하게 큼 
+- subnetwork 단위는 가능
 - global router에서 사용하기 어려움
 
 ### Link State Routing  
-- Centralized routing algorithm
+- Centralized routing algorithm (= 모든 애들이 broadcasting을 통해서 모든 것을 알고 있음)
+- 모든 node가 동일한 routing 정보를 공유할 수 있음
 - Dijkstra's algorithm 사용
 - 모든 link cost 파악
 - Link-tstate broadcast algorithm -> 각자의 iedntity와 link 별 cost 정보를 neighbor에게 전달
 - 한번에 routing table 만들 수 있음
 - 모든 node가 동일한 routing 정보 공유 가능
 - Congestion- sensitive routing 과정에서 oscillation 
-  - 최저를 찾다가 routing 경로가 안정하지 못하고 왔다갔다 할 수도
+  - 최저를 찾다가 routing 경로가 안정하지 못하고 왔다갔다 할 수도 (cost 변화로 인해)
 
 ### Distance-Vectort Routing
 - Decentralized routing algorithm
@@ -66,18 +68,17 @@
 - asynchronous/ distributed : 각자 알아서
   - 멀리 있는 애들 상관없이 neighbor node끼리 정보 주고 받으면서 routing 계산
 - 중간에 cost가 변경되면 routing loop 발생할 수 있음 
-
 - DV
-  - 정보 교환의 cost가 적음
+  - 인접 노드만 정보 교환 -> 정보 교환의 cost가 적음
   - 변화 빈도에 따라 메시지 전송 횟수 큼
   - convergence 속도 느림
 - LS
-  - control overhead 큼
+  - 모든 노드 정보 교환 -> control overhead 큼
   - 메시지 전송 많음
   - Robustness: 각자 routing 계산하는 방식이라 더 안정적
 
 ### Hierarchical Routing
-- 각각의 알고리즘이 장단점 가지고 있기때문에 일반적으로 사용하는 방식
+- 각각의 알고리즘이 장단점 가지고 있기 때문에 일반적으로 사용하는 방식
 - 실제 인터넷은 sub-network와 gateway router 형태로 계층적으로 네트워크 형성
   - sub-network 내: intra -AS routing 
   - network- network: inter -AS routing 
@@ -95,10 +96,11 @@
 - 응답하지 않으면 응답하라고 UDP, port520으로 보냄  
 
 ### OSPF - Open Shortest Path First
-- Dijkstra lesat- cost path 기반 
+- RIP 다음 버전
+- Dijkstra lesat-cost path 기반 -> flooding 활용
 - flooding 활용 (나에게 연결된 모든 Port에게 뿌림)
 - Complete topological map 기반으로 계산
-- link change가 없어도 최소한 30분에 한번 수행
+- robustness를 위해 link change가 없어도 최소한 30분에 한번 수행
 
 ### BGP - Border Gateway Protocol
 - AS 간 routing을 위한 protocol 
@@ -111,4 +113,4 @@
 **- Routing performance -> Correctness, Optimality**    
 **- Low control overhead -> Simplicity, Efficiency**
 
-*routing -> table/ distance vector/ link state 기반 / forwarding table 기반으로 forwarding 정도* 
+*routing -> table/ distance vector/ link state 기반으로 선택, forwarding table 기반으로 forwarding 정도* 
