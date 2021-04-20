@@ -20,41 +20,55 @@ React: error 상황에서 송신 측 동작
 
 - Explicit(외부적인 요인으로 ACK)
   - Positive ACK: 정상 수신된 PDU를 알려주는 방식 (sequence number) / Cumulative ACK: 다 받은 후 보냄 
-  - Negative ACK: 미수신 ACK알려줌 
+  - Negative ACK
+    - faulty or outstanding sequence: 미수신 ACK 알려줌
+    - active error control: 못받았으므로 골라서 받겠다 
+  - piggybacking
+    - 양방향일 때 Rx -> TxPDU에 실어서 같이 ACK 정보 전송
+- Implicit
+  - 송신에서 ACK 받았다고 간주
+- reaction: 재전송, 연결 끊음
 
 ### Timer
 - ACK도 깨질 수가 있음
 - TX 는 ACk을 기다리게 됨 -> Deadlock 발생
 - timer 동반함 -> 보내는 쪽이 timer 시작, 시간내에 도달하지 않으면 깨졌다고 판단  
 - timer interval = 데이터 보냄 + ACK받을 때까지 갔다오는 시간 + margin  
-- time-out -> timer expiry  
-- peer partner의 inactivity 감지  
-
-<br>
-
-#### timer의 중요성
-- protocol 표준 문서 -> 타이머는 항상 있음 !
-- timer name/ interval/ start/ stop/ expiry  
-- timer interval: 적절한 길이 
-- 너무 짧으면 리액션이 잦아지는 불필요한 상황 발생, 너무 길면 리액션이 너무 늦음  
+- time-out -> timer expiry -> plan B 실행
+- ACT 도착하면 timer reset함
+- Activity Timer
+  - peer partner의 inactivity 감지  
+- timer의 중요성
+  - protocol 표준 문서 -> 타이머는 항상 있음 !
+  - timer name/ interval/ start/ stop/ expiry  
+  - timer interval: 적절한 길이 
+  - 너무 짧으면 리액션이 잦아지는 불필요한 상황 발생, 너무 길면 리액션이 너무 늦어져 deadlock 구간 발생
 
 #### Error control 의 시나리오
 1. PDU Loss
-- 데이터 보내는 동안 중간에 손실 발생  
+- 데이터 보내는 동안 중간에 손실 발생 
 2. Duplicaiton  
 - 중복 발생 
-- ACK 손실, TX 측에서 time-out으로 PDU wowjsthd
-- 수신측에서 두 개면 하나 무시해도 됨  
--> sequence number로 감지 가능  
+- ACK 손실, TX 측에서 time-out으로 PDU 재전송
+- 수신측에서 두 개면 하나 무시해도 됨    
+*-> sequence number로 감지 가능*  
+```
+- RX 
+  - time-out-interval 이후에도 도달하지 않는 경우
+  - 더 큰 sequence number PDU 수신
+- TX
+  - ACK을 통해 빠진 sequence 인식
+  - 중복된 ACK sequence 수신 
+```
 
 ## ARQ (protocol)  
-: Automatic Repeat reQuest  
-ACK + timer + reactions  
-
+: Automatic Repeat reQuest 
+: ACK + timer + reactions    
+*-> 세가지 동작 포함, 여러 protocol function의 집합, 사실상 protocol*
 > stop and wait   
 - 가장 기본적인 ARQ (이전에 했던 방식)
 - 하나를 보내고 ACK 기다림 
-- 5G/ LTE 쓰이기도 함  
+- 5G/ LTE 일부 쓰이기도 함  
 
 > go back N  
 - n번째 error 발생 -> n부터 다시 재전송
@@ -77,16 +91,19 @@ ACK + timer + reactions
 - error correction  
 - 스스로 오류 정정  
 - bit를 뻥튀기해서 보냄 -> 수학계산으로 에러 정정  
-- 계산량 많음, 실시간 방송 (재전송 안되는 상황)  
+- 계산량 많음
+- 실시간 방송 (재전송 안되는 상황)  
+  - 시간이 지나면 PDU의 의미가 없어지는 서비스
+- 오늘날 모든 무선 통신 시스템에서 활용됨
 
 ## CRC  
 : Cyclic Redundant Check  
 - FEC가 오류를 다 고쳐주진 못함
 - 적어도 원본하고는 다르구나 -> error detection  
-- 부가 정보를 붙이고 수신 측에서 부가 정보를 활용해서 깨졌는지 확인 (FEC만큼 두배,세배 늘리는 건 아님)  
+- 부가 정보를 붙이고 수신 측에서 부가 정보를 활용해서 깨졌는지 확인 (FEC만큼 두배, 세배 늘리는 건 아님)  
 - (+) parity bit(16/24 bit)  
 - 수신 CRC, 내가 만든 CRC 비교
-- FEC가 완벽하게 복원했는지 확인하는 용도  
+- 주로 FEC가 완벽하게 복원했는지 확인하는 용도  
 - 미리 상호간에 약속된 다항식으로 나누어 나머지를 Parity bit
 
 ## QUIZ
