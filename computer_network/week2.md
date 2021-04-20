@@ -3,15 +3,15 @@
 ## Internet에서의 Protocol 역할
 - Interner: SW/HW 복합적으로 이루어짐
 - 기능 관점에서는 protocol들의 집합
-- 삼성: 철수,영희로 이루어져있다 -> X / 개발팀, 인사팀으로 이루어져있다 -> O : 기능 관점 !  
+- 삼성: 철수, 영희로 이루어져있다 -> X / 개발팀, 인사팀으로 이루어져있다 -> O : 기능 관점 !  
 
 ## Protocol  
 - Internet 안에서의 각 entity (router, end system)들이 동작하는 방식  
 - protocol : software 일수도 있음
 - 상호작용을 하면서 동작을 한다  
 - format, 메시지 주고 받음  
-- 여러개의 protoco이 서로 얽혀서 동작
-- 위 아래 protocol끼리 상호작용
+- 여러 개의 protoco이 서로 얽혀서 동작
+- 위 아래 protocol끼리 API로 상호 작용
 - 상대방에게 똑같은 protocol이 있다 (대칭적) -> 상호작용
 
 
@@ -22,38 +22,46 @@
 - SP(Service Primitive)를 통해 서비스 받음 / service 와 protocol이 공통적인 언어가 있어서 소통을 함 -> 공통된 언어: SP(메시지 형태)
   - service -> protocol 요청, protocol -> service 보고 할때 SP 형식으로 주고 받음  
   - 이름, 형식, 파라미터로 구성됨
-  - 형식 (primitive 종류) : request(s -> p), confirm(request 응답), indication(p -> s), response(indication 응답)  
+  - 형식 (primitive 종류)
+    - request: 서비스 시작 요청
+    - indication: protocol에서 service시작
+    - response: 회신
+    - confirm: 서비스 응답
 
 ### Protocol Model - Entity and SAP 
 - Entities (SAP에서 내려오는 걸 처리): service provider 내에서 서로 interacting하면서 실제 동작을 하는 존재  
 - Peer entity: 반대편에 대응됨
 - communication service 실현을 위해 서로 message 주고 받음
-- 하나의 SAP은 하나의 entity에 mapping, 여러개의 SAP에 하나의 entity는 가능
+- 하나의 SAP은 하나의 entity에 mapping, 여러 개의 SAP에 하나의 entity는 가능
 
-#### communication protocol  
--> peer entity 들 간 상호 작용을 하는 규칙
+### communication protocol  
+-> peer entity들 간 상호 작용을 하는 규칙
 - Service provider 내에서 service를 실현하기 위한 도구/ 규칙
-- Syntax(protocol이 내보내는 형식),Semantics(Syntax에 정의된 값들이 어떤 내용을 하는지, 어떤 동작을 하는지),timing (언제 보내고, 언제 동작) 
+- Syntax(protocol이 내보내는 PDU의 형식),Semantics(Syntax에 정의된 값들이 어떤 내용을 하는지, 어떤 동작을 하는지),timing(언제 보내고, 언제 동작) 
  
 ### Protocol Model - Protocol Representation  
 Time sequence diagram: 세로축 - 시간흐름, 가로축 - 한쪽 entity -> peer entity 상호 작용  
 
 -> SAP을 통해서 CR 들어옴  
  
-### Protocol Model - PDU
-- PDU: peer entity간 서로 주고받는 message
+### Protocol Model - PDU(Protocol Data Units)
+- PDU: peer entity간 서로 주고 받는 message
+- PDU의 포맷은 protocol에 의해 정의됨
+  - peer entity 양쪽에 format이 알려져 있고 한 PDU에 대해 양쪽에서 동일하게 해석
 - SDU (service가 primitive를 통해 내려주는 원래 data)  
 
 ### Principle of Transparency   
 - (서비스가 내려준)SDU를 조작없이 그대로 통과(내용 변하면 안됨)
+- SDU 내용을 참고하여 동작하지 않음
 - PCI -> Protocol header/trailer (제어정보)  
+  - 송신 측 entity에서 붙이고 수신 측 entity에서 제거
 
 ### Protocol function 
 - error control : 정상적으로 전달되지 않은 상황
-- flow control: 속도, 형태 조절
+- flow control, fragmentation: 속도, 형태 조절
 
 ### Protocol 동작의 특성
-- Concurrency: 일련의 이벤트가 동시에 일어나더라도 커버가능 해야함
+- Concurrency: 일련의 이벤트가 동시에 일어나더라도 커버가능 해야함 -> 어떤 상황에서도 예외없이 돌아가야 함
 - Nondeterminism: 이벤트가 어떤 순서로 발생하더라도 잘 작동되어야함 -> 모든 시나리오에 대처할 수 있어야함
 
 ### Layers
@@ -69,8 +77,12 @@ Time sequence diagram: 세로축 - 시간흐름, 가로축 - 한쪽 entity -> pe
 - 티켓팅, 수화물, 게이트 통과 --> 스택구조 (대칭을 이룸)  
 - horizontal interaction: peer entities끼리만 interaction, layer 간 interacion은 없음
 - 상위, 하위에서 서로 영향 주지 않음
-- Modularity: 기능 단위로 시스템 분해 -> 각 사람이 기능을 하나씩, 역할 분담 쉬워짐
-- 동작 분석, 디버깅, 시스템 동작을 용이하게 볼 수 있음
+- Modularity
+  - 기능 단위로 시스템 분해 -> 각 사람이 기능을 하나씩, 역할 분담 쉬워짐
+  - 일부 기능에 대한 수정이 용이
+- 기능의 series 형태로 표현, 동작 흐름이 한눈에 보임
+  - 동작 분석, 디버깅, 시스템 동작을 용이하게 볼 수 있음
+- principle of transparency: SDU 그대로 통과, protocol 동작이 SUD에 의해 영향 받지 않음
 
 ### PDU 관점에서 Layered Architecture
 - 아래로 갈수록 커짐
@@ -94,7 +106,7 @@ Time sequence diagram: 세로축 - 시간흐름, 가로축 - 한쪽 entity -> pe
 
 ### 과정
 host A -> host B   
-1. host A의 application이 정보 만들어서 TCP 쪽의 SAP에 다가 정보 보냄 (SDU)  
+1. host A의 application이 정보 만들어서 TCP 쪽의 SAP에다가 정보 보냄 (SDU)  
 2. TCP -> IP (PDU) : host B의 주소 받음  
 3. L2,L1 에 PDU 보내고 링크를 통해서 전달  
 4. 네트워크 타고해서 중간 router에 전달   
@@ -106,7 +118,7 @@ host A -> host B
 
 ### QUIZ
 
-- 하나의 레이어에서 상위레이어에서 받은 SDU에 Protocol Control Information 을 결합하여 이것을 생성하는데 peer entity 간의 서로 주고받는 메시지인 이것을 무엇이라 하는가?  
+- 하나의 레이어에서 상위레이어에서 받은 SDU에 Protocol Control Information을 결합하여 이것을 생성하는데 peer entity 간의 서로 주고받는 메시지인 이것을 무엇이라 하는가?  
 -> PDU  
 - 서비스와 SAP 간, 혹은 상위 레이어와 현재 레이어가 주고받는 메시지를 무엇이라 하는가? 이것의 형태는 request / indication / response / confirm 이 있다.  
 -> primitive  
