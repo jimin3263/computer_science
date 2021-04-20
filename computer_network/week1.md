@@ -21,11 +21,12 @@ end node끼리 통신이 이루어지도록 하는 기법
 - TCP/IP 통신 프로토콜을 굳이 이용하지 않아도 컴퓨터 사이에서 주고 받는 네트워크 기반 -> 컴퓨터 사이에서 이루어지고 있는 네트워크  
 - 오늘날 모든 네트워크 공학 기술을 포함한 존재  
 - Data를 전달하는 장치들이 이루는 거대한 network망  
-- 컴퓨터에서 동작하는 application(메일)이 다른 end node에게 망을 통해서 데이터를 전달하려고 할 때, 데이터를 전달하는 전체적인 네트워크  
-- IOT/모바일 기기 또한 통신에 참여함 -> 인터넷에 접속되어있다 -> application to application 데이터 전달하기위해 네트워크 이용  
-- arpanet -> world wide  
+- 컴퓨터에서 동작하는 application이 다른 end node에게 망을 통해서 데이터를 전달하려고 할 때, 데이터를 전달하는 전체적인 네트워크  
+- IOT/모바일 기기 또한 통신에 참여함 -> 인터넷에 접속되어있다 -> application to application 데이터 전달하기 위해 네트워크 이용 : 그 자체가 인터넷
+- arpanet -> world wide
+  - 미국 국방부에서 군사 목적으로 만듦
 
-### Internet 구성
+### Internet 구성요소 
 - sub network들로 구성   
 - sub network: mobile network(LTE, 5G), home network, 학교 내부 망   
 
@@ -41,32 +42,41 @@ end node끼리 통신이 이루어지도록 하는 기법
 > access networks    
 
 - 기기들이 인터넷에 접속하기 위해서 사용하는 network  
+- edge router
 - sub network의 기반이 됨
-- network edge가 인터넷에 접근하기위해 가장 먼저 연결되는 구간  
-- 3G, LTE, ethernet, 블루투스  
+- network edge가 인터넷에 접근하기 위해 가장 먼저 연결되는 구간  
 - 방식에 따라 전송률, 지연 등이 달라짐
+- Home
+  - Digital Subscriber Line(DSL)
+  - cable Internet Access
+  - Fiber to the home(FTTH)
+- Enterprise
+  - Lan(Local Area Network): Ethernet & WiFi
+- WAN(Wide Area Network): 3G, LTE, 5G
 
 
 > Network core     
 
-- 도시간의 통신, 중심 도시로부터 국가간의 통신 -> 전 세계적인 망의 중점이 되는 척추   
+- 도시간의 통신, 중심 도시로부터 국가 간의 통신 -> 전 세계적인 망의 중점이 되는 척추   
 - end system의 정보를 실어나르는 척추
 - 기지국(SKT,KT,U+) -> 집중국사 -> 인터넷 연결
 - packet switches(router, link-layer switches) 기반, 내가 원하는 곳으로 전달해줌  
 - store and forward transmission : 각각의 코어에는 버퍼가 있어서 먼저 들어온 것들 먼저 빼줌
-- 허브(ethernet 꽂을 수 있는) -> 패킷을 어디로 전달할 것인지  
-- packet 단위 (host -> hose data 뭉치)  
+- 허브(ethernet 꽂을 수 있는)/ [hub,router,switch](https://github.com/jimin3263/2021-1-study/blob/main/computer_network/week6.md#hub-vs-router) -> 패킷을 어디로 전달할 것인지  
+- packet 단위 (host -> host data 뭉치)  
 - packet Switching network: packet 기반의 통신 네트워크 (잘게 자른 패킷단위로)  
   - store and forward transmisson
-  - dlay time: 2*L/R
+  - Length/전송률
+  - dlay time: 2 * L/R (source -> packet switch -> Destination) 
   - Congestion: 여러개의 입력 node와 연결된 packet switch에서 혼잡 현상
   - Queueing: output buffer에 packet이 정체되는 현상
   - packet loss: buffer에 저장 못하고 packet이 버려지는 현상  
   - router: 연결된 여러 출력 node에게 packet을 적절히 전달
-  - forwarding table: packet 전달의 기본 원칙 - destination 으로 가기까지 어떤 link로 보낼 것 인지
+  - forwarding table: packet 전달의 기본 원칙 
+    - destination 으로 가기까지 어떤 link로 보낼 것 인지
   - routing protocol: 자동으로 forwarding table 생성하는 기법
 - Circuit Switching network: 한번 연결되면 계속 유지됨  
-  - Queueing, packet loss는 없음, capacity 떨어짐
+  - Queueing, packet loss는 없음, capacity 떨어짐 (이 자원을 모두는 사용 못하므로)
 
 
 ## 서비스 관점에서 Internet  
@@ -77,6 +87,8 @@ end node끼리 통신이 이루어지도록 하는 기법
 
 ## Protocol
 - Internert 내에서 각 entity들의 동작 그 자체
+- 정보 송수신에 대한 기능적 실체
+- 주고 받는 메시지 + 관련 동작 정의
 - entity들이 어떻게 다음 router에 전달하고 그 router가 edge router에 전달하고 edge router는 destination node 한테 어떤 access network를 통해서 전달할 것인지 ..?  
 - 모든 entitiy 간 서로 약속된 것이어야 함 (표준)
 - IETF에서 표준 만들어짐 -> TCP, IP, HTTP, SMTP  
@@ -84,7 +96,10 @@ end node끼리 통신이 이루어지도록 하는 기법
 ## Internet Performance
 - 성능 지표 
 - Delay: end system 간 packet이 전달되는 시간  
+  - processing + queue에서 기다리는 시간 
+- Delay: end system 간 packet이 전달되는 시간  + transmission + propagation
 - Throughput: 충분히 큰 파일을 전송하는 경우 수신 측에서 측정되는 전송률  
+  - bottleneck link
 
 ## Internet Trend
 - PC -> mobile -> IoT    
