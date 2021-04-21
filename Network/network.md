@@ -96,8 +96,7 @@ end node끼리 통신이 이루어지도록 하는 기법
 ## Internet Performance
 - 성능 지표 
 - Delay: end system 간 packet이 전달되는 시간  
-  - processing + queue에서 기다리는 시간 
-- Delay: end system 간 packet이 전달되는 시간  + transmission + propagation
+  - processing + queue에서 기다리는 시간 + transmission + propagation
 - Throughput: 충분히 큰 파일을 전송하는 경우 수신 측에서 측정되는 전송률  
   - bottleneck link
 
@@ -120,9 +119,3 @@ end node끼리 통신이 이루어지도록 하는 기법
 - Samsung : LTE/5G     
 - Huawei : 셀룰라 네트워크 
 
-
-## QUIZ 
-Data를 전달하는 장치들이 이루는 망으로, Network Edges/Access networks/Network Core로 이루어진 거대한 네트워크   
--> internet  
-End system간에 정보를 전달하는 과정에서 만들어지는 data 뭉치이자 Network Core에서 정보를 전달하는 전송 기본 단위로서, 인터넷에 있는 모든 switch나 router는 이 단위로 다음 네트워크 기기에 전달하게 된다. 이것은 무엇인가?  
--> packet  

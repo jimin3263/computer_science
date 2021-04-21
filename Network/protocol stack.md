@@ -10,7 +10,7 @@
 - protocol : software 일수도 있음
 - 상호작용을 하면서 동작을 한다  
 - format, 메시지 주고 받음  
-- 여러 개의 protoco이 서로 얽혀서 동작
+- 여러 개의 protocol이 서로 얽혀서 동작
 - 위 아래 protocol끼리 API로 상호 작용
 - 상대방에게 똑같은 protocol이 있다 (대칭적) -> 상호작용
 
@@ -115,11 +115,4 @@ host A -> host B
 
 ### Encapsulation 
 - layer를 통과하면서 PDU가 되면서 점점 header가 붙는다  
-
-### QUIZ
-
-- 하나의 레이어에서 상위레이어에서 받은 SDU에 Protocol Control Information을 결합하여 이것을 생성하는데 peer entity 간의 서로 주고받는 메시지인 이것을 무엇이라 하는가?  
--> PDU  
-- 서비스와 SAP 간, 혹은 상위 레이어와 현재 레이어가 주고받는 메시지를 무엇이라 하는가? 이것의 형태는 request / indication / response / confirm 이 있다.  
--> primitive  
 

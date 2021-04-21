@@ -1,21 +1,123 @@
-# Protocol Functions Ⅱ  
+# Protocol Functions
+
+## Error control
+- PDU가 정상적으로 전달되지 않은 상황에서 protocol entity의 동작
+- fragmentation(자르거나), flow control(흐름 조절)
+- Connection-oriented communications protocol: 연결 기반의 프로토콜  
+- PDU전달 과정에 문제 생김 -> 핸들링해주는 과정  
+
+```
+Detect: 송신 측에서 error 상황 인지  
+-> PDU를 보내고 수신이 제대로 되었는지 ?  
+React: error 상황에서 송신 측 동작  
+-> 송신측에 error 발생 알아내고 대처  
+```
+
+### Detect
+- Confirmation
+: 수신측에서 알려줌
+- Explicit(외부적인 요인으로 ACK)
+  - Positive ACK: 정상 수신된 PDU를 알려주는 방식 (sequence number) / Cumulative ACK: 다 받은 후 보냄 
+  - Negative ACK
+    - faulty or outstanding sequence: 미수신 ACK 알려줌
+    - active error control: 못받았으므로 골라서 받겠다 
+  - piggybacking
+    - 양방향일 때 Rx -> Tx PDU에 실어서 같이 ACK 정보 전송
+- Implicit
+  - 송신에서 ACK 받았다고 간주
+- reaction: 재전송, 연결 끊음
+
+### Timer
+- ACK도 깨질 수가 있음
+- TX 는 ACk을 기다리게 됨 -> Deadlock 발생
+- timer 동반함 -> 보내는 쪽이 timer 시작, 시간내에 도달하지 않으면 깨졌다고 판단  
+- timer interval = 데이터 보냄 + ACK받을 때까지 갔다오는 시간 + margin  
+- time-out -> timer expiry -> plan B 실행
+- ACK 도착하면 timer reset함
+- Activity Timer
+  - peer partner의 inactivity 감지  
+- timer의 중요성
+  - protocol 표준 문서 -> 타이머는 항상 있음 !
+  - timer name/ interval/ start/ stop/ expiry  
+  - timer interval: 적절한 길이 
+  - 너무 짧으면 리액션이 잦아지는 불필요한 상황 발생, 너무 길면 리액션이 너무 늦어져 deadlock 구간 발생
+
+#### Error control 의 시나리오
+1. PDU Loss
+- 데이터 보내는 동안 중간에 손실 발생 
+2. Duplicaiton  
+- 중복 발생 
+- ACK 손실, TX 측에서 time-out으로 PDU 재전송
+- 수신측에서 두 개면 하나 무시해도 됨    
+*-> sequence number로 감지 가능*  
+```
+- RX 
+  - time-out-interval 이후에도 도달하지 않는 경우
+  - 더 큰 sequence number PDU 수신
+- TX
+  - ACK을 통해 빠진 sequence 인식
+  - 중복된 ACK sequence 수신 
+```
+
+## ARQ (protocol)  
+: Automatic Repeat reQuest 
+: ACK + timer + reactions    
+*-> 세가지 동작 포함, 여러 protocol function의 집합, 사실상 protocol*
+> stop and wait   
+- 가장 기본적인 ARQ (이전에 했던 방식)
+- 하나를 보내고 ACK 기다림 
+- 5G/ LTE 일부 쓰이기도 함  
+
+> go back N  
+- n번째 error 발생 -> n부터 다시 재전송
+- duplication 발생하기도 함   
+- TX 는 ACK받기 전까지 PDU 저장하고 있어야 함  
+- RX N번째 이후는 버림  
+-> 버퍼 낭비가 큼  
+
+> selective repeat  
+- 손실된 PDU에 대해서만 골라서 재전송  
+- RX는 제대로 받은 PDU 저장  
+
+||Go back N|Selective repeat|
+|------|---|---|
+|buffer|TX|RX|
+|시간|재전송 수신까지 시간 걸림|시간 덜 걸림|    
+
+## FEC = Channel coding (protocol function)  
+: Forward Error Control (자기치유 능력) 
+- error correction  
+- 스스로 오류 정정  
+- bit를 뻥튀기해서 보냄 -> 수학계산으로 에러 정정  
+- 계산량 많음
+- 실시간 방송 (재전송 안되는 상황)  
+  - 시간이 지나면 PDU의 의미가 없어지는 서비스
+- 오늘날 모든 무선 통신 시스템에서 활용됨
+
+## CRC  
+: Cyclic Redundant Check  
+- FEC가 오류를 다 고쳐주진 못함
+- 적어도 원본하고는 다르구나 -> error detection  
+- 부가 정보를 붙이고 수신 측에서 부가 정보를 활용해서 깨졌는지 확인 (FEC만큼 두배, 세배 늘리는 건 아님)  
+- (+) parity bit(16/24 bit)  
+- 수신 CRC, 내가 만든 CRC 비교
+- 주로 FEC가 완벽하게 복원했는지 확인하는 용도  
+- 미리 상호간에 약속된 다항식으로 나누어 나머지를 Parity bit
+
 
 ### Synchronization  
 - 영상에서의 싱크와 비슷  
 - entity간 consistent한 protocol operation을 위해 서로의 state 맞추는 event 동작이 필요함  
-
-![image](https://user-images.githubusercontent.com/50178026/114429333-3cd94a00-9bf8-11eb-8563-2de888843fc3.png) 
--> connection 맺었다고 생각하고 data를 보내는데, RX에서 연결을 몰라서 discard 할 수도 있음 (받을 준비가 되어 있어야한다)  
--> connection setup/ release에서 주로 활용됨  
-<br> 
-
-- peer entity 간 connection (전화검: request, 받음: confirm -> 호가 맺어졌다)     
+- peer entity 간 connection (전화검: request, 받음: confirm -> 호가 맺어졌다)   
+*-> connection 맺었다고 생각하고 data를 보내는데, RX에서 연결을 몰라서 discard 할 수도 있음 (받을 준비가 되어 있어야 한다)*  
+*-> connection setup/ release에서 주로 활용됨*   
+  
 > 2-way handShaking   
 : connection request -> confirm : 두번만에 synchronization  
 - initiator(TX): request  <->  responder(RX): confirm 
 - request: 요구하는 전송률, 지연, LTE, wifi -> 어떤 채널로 언제 어떤 간격으로 PDU의 크기 등 (파라미터는 종류에 따라 다름)   
 - confirm: 받을 준비가 되었다 -> connection이 맺어졌다고 가정 
-![image](https://user-images.githubusercontent.com/50178026/114431004-fa187180-9bf9-11eb-82c0-755645441037.png)
+
 
 > 3-way handShaking   
 : 2-way + TX가 complete 한 번 더  
@@ -54,7 +156,7 @@
 (c): 계속해서 release 보냄 (d): 계속 time-out -> 알아서 release    
 
 #### Unidirectional connection에서의 release    
-- TX 에서 release 요청해야 함 (ㄱ)
+- TX 에서 release 요청해야 함 
 - release 요청 PDU 또한 sequence number 가져야 함 n번째 "몇번째가 release 메시지다" -> release가 먼저 도착할 수 있으므로
 - RX에서의 confirm까지 해야 함    
 
@@ -74,7 +176,7 @@
 - 문제가 있는 link 재전송 방지 -> 해당 연결 freezing
 
 ### PDU Adjustment  
-> N -> N-1
+> N -> N-1 layer mapping
 - one to one
 - Multiplexing: 상위 layer의 여러 SAP을 모아서 처리
   - scheduling: 어떤거부터 내릴지
