@@ -3,9 +3,19 @@
 ### OSI Layer 
 : 통신 네트워크를 이루는 Protocol layer 표준형 모델  
 
-|5-layer|
+|5-layer| 
+|:---:| 
+|Application| 
+|Transport| 
+|Network| 
+|Link|
+|Physical|
+
+|7-layer|
 |:---:|
 |Application|
+|presentation|
+|session|
 |Transport|
 |Network|
 |Link|
@@ -69,18 +79,20 @@
   - 물리적 제약 큼
   - 대역폭이 작은 대신 감쇄가 적고 noise 대비 수신 신호 크기가 큼  
   - attenuation(감쇄)가 적음  
-- Twisted pair
+- Twisted pair (가장 대중적)
+  - 2가닥이 꼬여있는 구조
   - Unshielded Twisted Pair(UTP) -> 로컬/ Shielded Twisted Pair(STP)  
-  - 카테고리로 나뉨
+  - 성능 특성에 따라 카테고리로 나뉨
 - Coaxial cable: 동축
   - twisted pair 보다 도달거리 길고 비쌈
   - 구리
 - Optical fiber
   - 주파수 range큼
   - 국가 간의 통신
-  - Gbps급 속도  
+  - Gbps급 속도, 가볍고 작은 사이즈
   - 통신 인프라로 활용
 - Unguided media(air, vacuum, seawater)
+  - 활용 가능한 주파수의 확보가 필요함
   - 시골, 도시에서 전달하는 지에도 영향
   - 장애물에 의한 감쇄가 심함
   - bandwidth가 커질 수록 frequency selectivity(주파수 특성)에 의한 왜곡 심해짐 
@@ -92,9 +104,9 @@
 - Half duplex: 양방향, 한 순간에 한 방향
   - 무전기
   - 워키토키
-  - 시간을 아주 잘게 쪼갬
+  - Time Division Duplex(TDD): 시간을 아주 잘게 쪼갬
 - Full duplex: 양방향, 한 순간에 동시에 양방향 
-  - modem 두개 필요 -> 하드웨어적으로 비효율  
+  - modem 두 개 필요 -> 하드웨어적으로 비효율  
   - 보내는 신호가 받는 신호로 들어올 수도 있음
   - 아직 개발 중
 
@@ -111,17 +123,18 @@
 - Channel Capacity
   - error가 일정 수준 이하로 유지하면서 낼 수 있는 이론 상의 최대 전송률    
   - SNR 기반 = signal to noise ratio(신호 대 잡음비) -> 높을 수록 잡음이 덜함
-  - SNR가 높을 수록 date rate 높아짐
+  - SNR가 높을 수록 data rate 높아짐
 
 # Layer2 - Data Link Layer 
 : 유선, 와이어리스 채널 Media Access Control
 : link 자체 control  
 - L1 물리 계층에서의 정보 전송 흐름을 제어하는 역할
-  - 보낼까 말까/ 얼만큼 보낼까, 상위 계층으로 수신 PDU를 올릴까 말까
+  - 보낼까 말까, 얼만큼 보낼까/ 상위 계층으로 수신 PDU를 올릴까 말까
   - L1이 보낼 수 있는 capacity와 밀접하게 연관
 - L2는 제대로 보냈는지 관리
   - Packet Error
   - r(t)= N(t)+s(t)
+  - 수신 신호에 더해져서 demodulation, decoding에 영향을 줌
   - single-bit errors: 간헐적인 noise 증가로 분산된 bit가 각각 오류가 난 경우
   - burst errors: 수신 신호 감도가 낮아지면서 연속적으로 bit error 발생
   - L2 -> 스스로 알지 못함 -> parity bit 
@@ -140,17 +153,22 @@
   - CRC 방식: 
     - 가장 강력하고 두루 활용되는 방식 -> 나머지 붙임
     - 미리 정해진 다항식으로 나눔 
-    - 다항식으로 나타내기도 함 -> 지수를 통해서 몇번째 비트인지 순서를 쉽게 알 수 있음
+    - bit 열이 아닌 다항식으로 나타내기도 함 -> 지수를 통해서 몇번째 비트인지 순서를 쉽게 알 수 있음
     
 ### Error Correction  
 - FEC (Forward error corretion)
 - bit 내 에러가 나더라도 원래 데이터로 복호화할 수 있는 형태
 - parity를 통해서 에러가 발생하면, 재전송 -> 에러를 스스로 고치는 게 젤 좋음 
 - channel encoding: data bit를 재가공해서 고칠 수 있는 형태 (codeword)
-- channel decoding: encoding된 bit를 decoding해서 원래 bit 복원
+- channel decoding: encoding된 bit를 decoding해서 원래 bit 복원 (이 과정에서 error 정정이 일어남)
 - link가 좋을때 -> 에러가 많이 안일어나니까 code rate를 높게 
 - link가 좋지 않을때 -> 에러가 많이 일어나므로 n비트를 최대한 많이 늘려서 에러가 나더라도 복호화를 잘할 수 있음
   - code rate: k/n(원래 데이터 크기/ code word 크기) -> codeword 크기 작게 함
+- 종류
+  - block code: block단위로 새롭게 배치
+  - convolutional code & turbo code
+  - LDPC: 이론상의 한계치에 가장 근접
+  - Polar code
 - 효과
   - target BER를 만족하는 SNR을 낮출 수 있는 효과  
 
@@ -165,7 +183,7 @@
   - 재전송된 packet을 잘 결합해서 Forward Error Correction을 함
 
 ### Media Access Control - MAC
-- N:1
+- N:1 (여러 개의 디바이스가 하나의 매체 사용)
 - 붐비는 채널을 누가 먼저 사용할 것인가?
 - Non contenion 기반 MAC
   - 중앙 집권적(기지국)이 스케줄링
@@ -180,9 +198,9 @@
 - Contention 기반 MAC 
   - 경쟁 기반
   - wifi
-  - LTE/ 5G -> 쉬고 있는 휴대폰 -> 기지국에게 있는 것을 알려줘야 함, 꺼져있어서 어떤 자원을 내려줘야 할지 모름 -> 접속을 하려고 하는 디바이스 여러개, 경쟁하게 됨
+  - LTE/ 5G -> 쉬고 있는 휴대폰 -> 기지국에게 있는 것을 알려줘야 함, 꺼져있어서 어떤 자원을 내려줘야 할지 모름 -> 접속을 하려고 하는 디바이스 여러 개, 경쟁하게 됨
   - ALOHA (slotted ALOHA) : Random Access Channel -> slot을 나눠서 slot 중에서 하나의 시간에 보내라 : 충돌 여전히 발생  
-  - IEEE (ethernet, WIFI)
+  - IEEE 계열 MAC(ethernet, WIFI)
     - 유선 (CSMA/CD): 충돌된 걸 바로 알 수 있음 (carrier Detection)
     - 무선 (CSMA/CA): 보내는 동안은 모름, ACK 오지 않음 -> 기다렸다가 보냄 -> 충돌로 인한 오버헤드 줄임  
 
