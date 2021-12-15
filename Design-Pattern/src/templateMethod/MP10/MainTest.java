@@ -15,15 +15,15 @@ public class MainTest {
 		}
 		
 		System.out.println("\nsort by Name");
-		NameSorter sorter = new NameSorter();
-		sorter.bubbleSort(people);
+		BubbleSorter sorter = new NameSorter();
+		sorter.sort(people);
 		for (Person p : people) {
 			System.out.println(p);
 		}
 		
 		System.out.println("\nsort by Age");
-		AgeSorter sorter2 = new AgeSorter();
-		sorter2.bubbleSort(people);
+		sorter = new AgeSorter();
+		sorter.sort(people);
 		for (Person p : people) {
 			System.out.println(p);
 		}

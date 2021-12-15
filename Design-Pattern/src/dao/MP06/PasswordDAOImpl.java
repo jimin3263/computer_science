@@ -18,11 +18,8 @@ public class PasswordDAOImpl implements PasswordDAO{
 
         try{
             connection = DriverManager.getConnection("jdbc:sqlite:"+ DB_FILE_NAME); //jdbc 연결
-
             statement = connection.createStatement();
-
             statement.setQueryTimeout(30);
-
             statement.executeUpdate("DROP TABLE IF EXISTS "+ DB_TABLE_NAME);
             statement.executeUpdate("CREATE TABLE "+DB_TABLE_NAME + table);
 
